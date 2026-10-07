@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khoa Học Lớp 5 - Bài 4: Trạng Thái & Sự Biến Đổi Của Chất</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    .game-card {
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 16px 32px rgba(45, 112, 196, 0.18), 0 0 0 6px #fff;
+      max-width: 680px;
+      width: 100%;
+      padding: 28px;
+      position: relative;
+      border: 4px solid #fed330;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Tiêu đề & thanh tiến trình */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .badge-topic {
+      background: #ff6b6b;
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+    }
+
+    .score-box {
+      font-size: 16px;
+      font-weight: 800;
+      color: #2e86de;
+      background: #eef5fc;
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 2px dashed #70a1ff;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 12px;
+      background: #e0eafc;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #20bf6b, #0be881);
+      width: 10%;
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+
+    /* Khung câu hỏi */
+    .question-box {
+      background: #f7f9fe;
+      border: 3px solid #dff9fb;
+      border-radius: 20px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .q-number {
+      font-size: 14px;
+      font-weight: 800;
+      color: #f39c12;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .q-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: #2c3e50;
+      line-height: 1.5;
+    }
+
+    .speaker-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: #ffbe76;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .speaker-btn:hover {
+      transform: scale(1.15) rotate(-10deg);
+    }
+
+    /* Danh sách đáp án */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .option-btn {
+      background: #ffffff;
+      border: 2.5px solid #dcdde1;
+      border-radius: 16px;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #34495e;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: #3867d6;
+      background: #f1f2f6;
+      transform: translateY(-2px);
+    }
+
+    .option-letter {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      border-radius: 10px;
+      background: #dfe4ea;
+      color: #2f3542;
+      text-align: center;
+      margin-right: 12px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .option-btn.correct {
+      background: #d4edda !important;
+      border-color: #28a745 !important;
+      color: #155724 !important;
+    }
+    .option-btn.correct .option-letter {
+      background: #28a745;
+      color: white;
+    }
+
+    .option-btn.wrong {
+      background: #f8d7da !important;
+      border-color: #dc3545 !important;
+      color: #721c24 !important;
+    }
+    .option-btn.wrong .option-letter {
+      background: #dc3545;
+      color: white;
+    }
+
+    /* Hộp giải thích */
+    .explanation-box {
+      display: none;
+      background: #fff3cd;
+      border-left: 6px solid #ffc107;
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .explanation-box h4 {
+      font-size: 15px;
+      color: #856404;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .explanation-box p {
+      font-size: 15px;
+      color: #664d03;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    /* Nút tiếp tục */
+    .next-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #10ac84, #1dd1a1);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      padding: 14px 20px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(16, 172, 132, 0.35);
+      transition: all 0.2s;
+      display: none;
+    }
+
+    .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(16, 172, 132, 0.45);
+    }
+
+    /* Màn hình kết thúc */
+    .result-screen {
+      display: none;
+      text-align: center;
+      padding: 20px 10px;
+    }
+
+    .result-icon {
+      font-size: 70px;
+      margin-bottom: 10px;
+      animation: bounce 1s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-12px); }
+    }
+
+    .result-title {
+      font-size: 26px;
+      font-weight: 900;
+      color: #ff4757;
+      margin-bottom: 12px;
+    }
+
+    .result-score {
+      font-size: 22px;
+      font-weight: 800;
+      color: #2ed573;
+      margin-bottom: 16px;
+    }
+
+    .result-message {
+      font-size: 16px;
+      color: #57606f;
+      line-height: 1.5;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+
+    .restart-btn {
+      background: linear-gradient(135deg, #3867d6, #4b7bec);
+      color: white;
+      border: none;
+      border-radius: 18px;
+      padding: 14px 36px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(56, 103, 214, 0.35);
+      transition: transform 0.2s;
+    }
+
+    .restart-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Màn hình khởi đầu */
+    .start-screen {
+      text-align: center;
+      padding: 24px 10px;
+    }
+
+    .start-screen h1 {
+      font-size: 24px;
+      color: #2c3e50;
+      margin-bottom: 12px;
+      font-weight: 900;
+    }
+
+    .start-screen p {
+      font-size: 15px;
+      color: #7f8c8d;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, #ff6b6b, #ee5253);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 16px 40px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(238, 82, 83, 0.4);
+      transition: transform 0.2s;
+    }
+
+    .start-btn:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-card">
+    
+    <!-- Màn hình bắt đầu -->
+    <div id="startScreen" class="start-screen">
+      <div style="font-size: 64px; margin-bottom: 12px;">🧪✨🧊</div>
+      <h1>CHINH PHỤC KHOA HỌC 5</h1>
+      <p>Bài 4: Đặc điểm chất ở thể rắn, lỏng, khí - Sự biến đổi trạng thái của chất<br>(Bộ sách Kết nối tri thức với cuộc sống)</p>
+      <button class="start-btn" onclick="startGame()">🚀 BẮT ĐẦU CHƠI NGAY</button>
+    </div>
+
+    <!-- Màn hình trò chơi -->
+    <div id="quizScreen" style="display: none;">
+      <div class="header-bar">
+        <span class="badge-topic">Khoa học 5 • Kết nối</span>
+        <span class="score-box">⭐ Điểm: <span id="currentScore">0</span>/10</span>
+      </div>
+
+      <div class="progress-bar-container">
+        <div id="progressBar" class="progress-bar-fill"></div>
+      </div>
+
+      <div class="question-box">
+        <div class="q-number" id="qNumber">CÂU HỎI 1/10</div>
+        <div class="q-text" id="qText">Nội dung câu hỏi ở đây?</div>
+        <button class="speaker-btn" title="Đọc lại câu hỏi" onclick="speakCurrentQuestion()">🔊</button>
+      </div>
+
+      <div class="options-grid" id="optionsGrid">
+        <!-- Các lựa chọn sẽ tự sinh qua JavaScript -->
+      </div>
+
+      <div class="explanation-box" id="explanationBox">
+        <h4>💡 Giải thích khoa học:</h4>
+        <p id="explanationText">Giải thích câu trả lời khoảng 2 dòng ở đây.</p>
+      </div>
+
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">TIẾP TỤC ➡️</button>
+    </div>
+
+    <!-- Màn hình hoàn thành -->
+    <div id="resultScreen" class="result-screen">
+      <div class="result-icon" id="resIcon">🎉</div>
+      <div class="result-title" id="resTitle">XUẤT SẮC!</div>
+      <div class="result-score" id="resScore">Bạn đạt 10/10 điểm!</div>
+      <div class="result-message" id="resMessage">Em nắm rất vững đặc điểm và sự chuyển thể của các chất!</div>
+      <button class="restart-btn" onclick="restartGame()">🔄 CHƠI LẠI TỪ ĐẦU</button>
+    </div>
+
+  </div>
+
+  <script>
+    // Danh sách 10 câu hỏi bám sát chuẩn kiến thức SGK Bài 4 - Khoa học 5 (KNTT)
+    const questions = [
+      {
+        question: "Chất ở trạng thái rắn có đặc điểm nào dưới đây?",
+        options: [
+          "Có hình dạng xác định và chiếm khoảng không gian xác định.",
+          "Không có hình dạng xác định nhưng chiếm khoảng không gian xác định.",
+          "Không có hình dạng xác định và không có khoảng không gian xác định.",
+          "Có hình dạng thay đổi linh hoạt theo hình dạng bình chứa nó."
+        ],
+        correct: 0,
+        explanation: "Chất ở trạng thái rắn có hình dạng xác định và chiếm khoảng không gian xác định.\nVí dụ như viên đá, khúc gỗ luôn giữ nguyên hình dáng và thể tích của mình."
+      },
+      {
+        question: "Đặc điểm nổi bật của chất ở trạng thái lỏng là gì?",
+        options: [
+          "Có hình dạng xác định và không thể chảy được.",
+          "Không có hình dạng xác định và chiếm khoảng không gian không xác định.",
+          "Không có hình dạng xác định nhưng chiếm khoảng không gian xác định.",
+          "Luôn lan toả để lấp đầy toàn bộ khoảng không gian bên trong bình chứa."
+        ],
+        correct: 2,
+        explanation: "Chất lỏng chiếm khoảng không gian xác định nhưng không có hình dạng xác định.\nChúng sẽ mang hình dạng của phần vật chứa chứa nó như cốc hay bình đựng."
+      },
+      {
+        question: "Chất ở trạng thái khí có đặc điểm nào sau đây?",
+        options: [
+          "Có hình dạng xác định giống như chất rắn.",
+          "Không có hình dạng xác định và chiếm toàn bộ không gian bên trong vật chứa.",
+          "Có hình dạng cố định và không thể nén lại được.",
+          "Chỉ chiếm một thể tích nhỏ xác định ở đáy của vật chứa."
+        ],
+        correct: 1,
+        explanation: "Chất khí không có hình dạng xác định và chiếm khoảng không gian không xác định.\nKhí luôn lan tỏa đều và chiếm toàn bộ thể tích không gian bên trong vật chứa nó."
+      },
+      {
+        question: "Trong câu chuyện ngụ ngôn, quạ gắp sỏi thả vào bình nước. Nước dâng lên thể hiện đặc điểm nào của sỏi?",
+        options: [
+          "Viên sỏi có thể tan nhanh ở trong nước.",
+          "Viên sỏi biến đổi thành chất khác khi gặp nước.",
+          "Chất ở trạng thái rắn chiếm một khoảng không gian xác định.",
+          "Chất ở trạng thái rắn không có thể tích xác định."
+        ],
+        correct: 2,
+        explanation: "Sỏi là chất rắn chiếm một khoảng không gian xác định trong bình.\nKhi sỏi chìm xuống sẽ chiếm chỗ của nước, khiến mực nước dâng cao lên giúp quạ uống được."
+      },
+      {
+        question: "Khi đun nóng một mẫu nến (sáp), hiện tượng gì sẽ diễn ra trước tiên?",
+        options: [
+          "Nến chuyển ngay thành chất khí có mùi thơm.",
+          "Nến từ trạng thái rắn chuyển sang trạng thái lỏng.",
+          "Nến biến đổi thành tro than màu đen sẫm.",
+          "Nến đông đặc lại thành một khối cứng chắc hơn."
+        ],
+        correct: 1,
+        explanation: "Dưới tác dụng của nhiệt độ cao, sáp nến vụn sẽ nóng chảy ra.\nĐó là hiện tượng nến chuyển từ trạng thái rắn sang trạng thái lỏng."
+      },
+      {
+        question: "Sau khi để nguội sáp nến lỏng, sáp nến sẽ biến đổi như thế nào?",
+        options: [
+          "Nến bốc hơi hoàn toàn vào trong không khí.",
+          "Nến đông đặc lại từ trạng thái lỏng sang trạng thái rắn.",
+          "Nến tiếp tục sôi và biến đổi thành tro than.",
+          "Nến giữ nguyên trạng thái lỏng mãi mãi không đổi."
+        ],
+        correct: 1,
+        explanation: "Khi nhiệt độ hạ xuống bình thường, sáp nến lỏng sẽ nguội dần và đông đặc lại.\nNến chuyển từ trạng thái lỏng trở về trạng thái rắn như ban đầu."
+      },
+      {
+        question: "Khi thoa cồn y tế lên tay, cồn biến mất rất nhanh là do hiện tượng gì?",
+        options: [
+          "Cồn đã bị ngấm hoàn toàn qua da vào trong máu.",
+          "Cồn đã đông đặc lại thành các hạt rắn siêu nhỏ li ti.",
+          "Cồn là chất lỏng rất dễ bay hơi chuyển thành thể khí ở nhiệt độ phòng.",
+          "Cồn đã bị phân hủy hoàn toàn thành tro vụn."
+        ],
+        correct: 2,
+        explanation: "Cồn là chất lỏng có đặc tính rất dễ bay hơi ở nhiệt độ môi trường phòng.\nChất cồn lỏng đã nhanh chóng chuyển thể thành hơi khí lan toả vào không khí."
+      },
+      {
+        question: "Bình khí ô-xi y tế dùng cấp cứu bệnh nhân chứa ô-xi ở trạng thái nào?",
+        options: [
+          "Trạng thái rắn được tán mịn như bột phấn.",
+          "Trạng thái lỏng ở nhiệt độ rất thấp bên trong bình chứa.",
+          "Trạng thái đóng băng thành khối đá trong suốt.",
+          "Trạng thái chân không hoàn toàn không có khí."
+        ],
+        correct: 1,
+        explanation: "Ở nhiệt độ rất thấp, khí ô-xi được nén chuyển sang dạng lỏng để chứa trong bình.\nKhi sử dụng, ô-xi lỏng chuyển thành thể khí để bệnh nhân hít thở dễ dàng."
+      },
+      {
+        question: "Hiện tượng băng ở Bắc Cực tan chảy thành nước do nguyên nhân nào?",
+        options: [
+          "Do nước biển có độ mặn làm hòa tan các khối băng.",
+          "Do Trái Đất ấm lên khiến băng rắn chuyển thành nước lỏng.",
+          "Do gió biển thổi mạnh làm vỡ vụn các tảng băng trôi.",
+          "Do các loài sinh vật biển tác động làm mòn băng tuyết."
+        ],
+        correct: 1,
+        explanation: "Sự nóng lên toàn cầu làm nhiệt độ không khí tăng cao khiến băng tan chảy.\nBăng từ trạng thái rắn chuyển thể thành nước lỏng làm thu hẹp nơi sống của gấu Bắc Cực."
+      },
+      {
+        question: "Hiện tượng nào sau đây là ví dụ về sự biến đổi trạng thái của chất?",
+        options: [
+          "Thanh củi bị cháy thành than màu đen và toả khói.",
+          "Đinh sắt để ngoài trời ẩm ướt bị gỉ màu nâu đỏ.",
+          "Đun sôi nước lỏng trong ấm chuyển thành hơi nước bốc lên.",
+          "Đun đường trắng cháy đen thành ca-ra-men có vị đắng."
+        ],
+        correct: 2,
+        explanation: "Nước lỏng khi sôi bốc hơi thành thể khí là sự biến đổi trạng thái của chất.\nCác hiện tượng còn lại đều có sinh ra chất mới nên là biến đổi hoá học."
+      }
+    ];
+
+    let currentQIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    // Web Audio Synthesizer cho hiệu ứng âm thanh
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTone(freq, type, duration, delay = 0) {
+      setTimeout(() => {
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch (e) {
+          console.error(e);
+        }
+      }, delay);
+    }
+
+    function playCorrectSound() {
+      playTone(523.25, "triangle", 0.15, 0); // C5
+      playTone(659.25, "triangle", 0.15, 120); // E5
+      playTone(783.99, "triangle", 0.28, 240); // G5
+    }
+
+    function playWrongSound() {
+      playTone(250, "sawtooth", 0.2, 0);
+      playTone(190, "sawtooth", 0.35, 150);
+    }
+
+    function playVictorySound() {
+      const melody = [
+        { f: 523.25, d: 0.15, t: 0 },
+        { f: 659.25, d: 0.15, t: 150 },
+        { f: 783.99, d: 0.15, t: 300 },
+        { f: 1046.50, d: 0.45, t: 450 }
+      ];
+      melody.forEach(note => playTone(note.f, "sine", note.d, note.t));
+    }
+
+    // Web Speech API (Đọc giọng tiếng Việt)
+    function speakText(text, callback) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel(); // Dừng câu đang đọc nếu có
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'vi-VN';
+      utterance.rate = 0.95; // Tốc độ vừa phải cho học sinh
+      utterance.pitch = 1.05; // Giọng tươi vui
+
+      // Tìm giọng đọc tiếng Việt tối ưu nếu thiết bị hỗ trợ
+      const voices = window.speechSynthesis.getVoices();
+      const viVoice = voices.find(v => v.lang === 'vi-VN' || v.lang.startsWith('vi'));
+      if (viVoice) utterance.voice = viVoice;
+
+      if (callback) {
+        utterance.onend = callback;
+      }
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Bắt đầu game
+    function startGame() {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      document.getElementById("startScreen").style.display = "none";
+      document.getElementById("quizScreen").style.display = "block";
+      currentQIndex = 0;
+      score = 0;
+      document.getElementById("currentScore").innerText = score;
+      loadQuestion();
+    }
+
+    // Hiển thị câu hỏi
+    function loadQuestion() {
+      answered = false;
+      const qData = questions[currentQIndex];
+
+      document.getElementById("qNumber").innerText = `CÂU HỎI ${currentQIndex + 1}/10`;
+      document.getElementById("qText").innerText = qData.question;
+      document.getElementById("progressBar").style.width = `${((currentQIndex + 1) / 10) * 100}%`;
+
+      const optionsGrid = document.getElementById("optionsGrid");
+      optionsGrid.innerHTML = "";
+
+      const letters = ["A", "B", "C", "D"];
+      qData.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerHTML = `<span class="option-letter">${letters[idx]}</span><span>${opt}</span>`;
+        btn.onclick = () => selectOption(idx);
+        optionsGrid.appendChild(btn);
+      });
+
+      // Ẩn giải thích và nút tiếp theo
+      document.getElementById("explanationBox").style.display = "none";
+      document.getElementById("nextBtn").style.display = "none";
+
+      // Chuẩn bị văn bản để đọc cả câu hỏi lẫn các đáp án
+      let readScript = `Câu ${currentQIndex + 1}. ${qData.question}. `;
+      qData.options.forEach((opt, idx) => {
+        readScript += `Đáp án ${letters[idx]}: ${opt}. `;
+      });
+
+      speakText(readScript);
+    }
+
+    // Nút đọc lại câu hỏi
+    function speakCurrentQuestion() {
+      const qData = questions[currentQIndex];
+      const letters = ["A", "B", "C", "D"];
+      let readScript = `Câu ${currentQIndex + 1}: ${qData.question}. `;
+      qData.options.forEach((opt, idx) => {
+        readScript += `Đáp án ${letters[idx]}: ${opt}. `;
+      });
+      speakText(readScript);
+    }
+
+    // Xử lý khi học sinh bấm chọn đáp án
+    function selectOption(selectedIdx) {
+      if (answered) return;
+      answered = true;
+
+      const qData = questions[currentQIndex];
+      const buttons = document.querySelectorAll(".option-btn");
+      buttons.forEach(btn => btn.disabled = true);
+
+      const expBox = document.getElementById("explanationBox");
+      const expText = document.getElementById("explanationText");
+      const nextBtn = document.getElementById("nextBtn");
+
+      expText.innerText = qData.explanation;
+      expBox.style.display = "block";
+      nextBtn.style.display = "block";
+
+      let speechFeedback = "";
+
+      if (selectedIdx === qData.correct) {
+        buttons[selectedIdx].classList.add("correct");
+        score++;
+        document.getElementById("currentScore").innerText = score;
+        playCorrectSound();
+        speechFeedback = `Chính xác! Giỏi lắm! Giải thích: ${qData.explanation}`;
+      } else {
+        buttons[selectedIdx].classList.add("wrong");
+        buttons[qData.correct].classList.add("correct");
+        playWrongSound();
+        const letters = ["A", "B", "C", "D"];
+        speechFeedback = `Chưa đúng rồi! Đáp án đúng là ${letters[qData.correct]}. Giải thích: ${qData.explanation}`;
+      }
+
+      // Đọc phần giải thích 2 dòng rõ ràng
+      speakText(speechFeedback);
+    }
+
+    // Chuyển sang câu hỏi tiếp theo
+    function nextQuestion() {
+      window.speechSynthesis.cancel();
+      currentQIndex++;
+      if (currentQIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    // Hiển thị kết quả sau 10 câu
+    function showResults() {
+      document.getElementById("quizScreen").style.display = "none";
+      const resultScreen = document.getElementById("resultScreen");
+      resultScreen.style.display = "block";
+
+      const resTitle = document.getElementById("resTitle");
+      const resScore = document.getElementById("resScore");
+      const resMsg = document.getElementById("resMessage");
+      const resIcon = document.getElementById("resIcon");
+
+      resScore.innerText = `Em đạt ${score}/10 điểm!`;
+
+      let finalAudioMsg = "";
+      if (score >= 9) {
+        resIcon.innerText = "🏆🎉";
+        resTitle.innerText = "XUẤT SẮC TUYỆT VỜI!";
+        resMsg.innerText = "Chúc mừng em! Em đã nắm vững toàn bộ kiến thức về các trạng thái của chất và sự chuyển thể!";
+        finalAudioMsg = `Chúc mừng em đã hoàn thành xuất sắc trò chơi với ${score} trên 10 điểm! Em thật tuyệt vời!`;
+        playVictorySound();
+      } else if (score >= 6) {
+        resIcon.innerText = "⭐👏";
+        resTitle.innerText = "KẾT QUẢ RẤT TỐT!";
+        resMsg.innerText = "Em làm bài rất tốt! Hãy xem lại các câu chưa đúng để đạt điểm 10 tuyệt đối nhé!";
+        finalAudioMsg = `Chúc mừng em đã đạt ${score} trên 10 điểm! Em làm bài rất tốt!`;
+        playVictorySound();
+      } else {
+        resIcon.innerText = "🌻💪";
+        resTitle.innerText = "CỐ GẮNG LẦN SAU NHÉ!";
+        resMsg.innerText = "Em hãy ôn lại bài học số 4 và thử lại để đạt kết quả cao hơn nào!";
+        finalAudioMsg = `Em đạt ${score} trên 10 điểm. Hãy cùng thử sức lại một lần nữa để đạt điểm cao hơn nhé!`;
+        playTone(300, "triangle", 0.4, 0);
+      }
+
+      speakText(finalAudioMsg);
+    }
+
+    // Chơi lại từ đầu
+    function restartGame() {
+      window.speechSynthesis.cancel();
+      document.getElementById("resultScreen").style.display = "none";
+      startGame();
+    }
+  </script>
+</body>
+</html>
